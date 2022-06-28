@@ -1,0 +1,41 @@
+version: "3.7"
+
+services:
+  nginx:
+    restart: unless-stopped
+    build:
+      context: ./nginx
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - TLS_MODE
+      - SITE_HOST
+
+  db:
+    restart: unless-stopped
+    image: postgres:12-alpine
+    volumes:
+    - ./postgres_data:/var/lib/postgresql/data:cached
+    ports:
+    - 15432:5432
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_SERVER=${POSTGRES_SERVER}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+
+  backend:
+    build:
+      context: ./backend
+    command: uvicorn main:app --reload --host 0.0.0.0
+    restart: unless-stopped
+    ports:
+    - 8000:8000
+    volumes:
+    - ./backend:/app
+    depends_on:
+      - db
+    env_file:
+      - .env
