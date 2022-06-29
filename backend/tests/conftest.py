@@ -22,9 +22,7 @@ def start_application():
 
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test_db.db"
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionTesting = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -49,7 +47,6 @@ def db_session(app: FastAPI) -> Generator[SessionTesting, Any, None]:
 
 @pytest.fixture(scope="function")
 def client(app: FastAPI, db_session: SessionTesting) -> Generator[TestClient, Any, None]:
-
     def _get_test_db():
         try:
             yield db_session
